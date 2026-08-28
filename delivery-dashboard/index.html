@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Exception Management Dashboard - GreyAtom Logistics</title>
+  <meta name="description" content="Internal operational dashboard for GreyAtom Logistics Pvt. Ltd. to manage and resolve delivery exceptions in real-time.">
+  <link rel="stylesheet" href="style.css">
+  <!-- Google Fonts for modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Toast Notification System -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Top Header Navigation -->
+    <header class="main-header">
+      <div class="header-left">
+        <div class="logo-container">
+          <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <span class="logo-text">GreyAtom Logistics</span>
+        </div>
+        <div class="divider"></div>
+        <h1 class="dashboard-title">Delivery Exception Management Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <div class="badge-operations">
+          <span class="pulse-indicator"></span>
+          <span>Operations Active</span>
+        </div>
+        <div class="date-display" id="current-date">July 17, 2026</div>
+      </div>
+    </header>
+
+    <!-- Main Workspace Layout -->
+    <main class="dashboard-workspace">
+      
+      <!-- Left Column: Exception Reporting Form -->
+      <aside class="sidebar-section">
+        <div class="card form-card">
+          <div class="card-header">
+            <div class="card-icon-wrapper form-icon-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="card-header-icon">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="12" y1="18" x2="12" y2="12"></line>
+                <line x1="9" y1="15" x2="15" y2="15"></line>
+              </svg>
+            </div>
+            <div>
+              <h2>Report Exception</h2>
+              <p class="card-subtitle">Log a new delivery issue</p>
+            </div>
+          </div>
+
+          <form id="exception-form" novalidate>
+            <!-- Delivery ID -->
+            <div class="form-group">
+              <label for="delivery-id">Delivery ID <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="text" id="delivery-id" name="deliveryId" placeholder="e.g., DEL-98231" required>
+                <span class="input-focus-border"></span>
+              </div>
+              <div class="error-msg" id="err-delivery-id">Delivery ID is required.</div>
+            </div>
+
+            <!-- Customer Name -->
+            <div class="form-group">
+              <label for="customer-name">Customer Name <span class="required">*</span></label>
+              <div class="input-wrapper">
+                <input type="text" id="customer-name" name="customerName" placeholder="e.g., Jane Smith" required>
+                <span class="input-focus-border"></span>
+              </div>
+              <div class="error-msg" id="err-customer-name">Customer name is required.</div>
+            </div>
+
+            <!-- Issue Type Dropdown -->
+            <div class="form-group">
+              <label for="issue-type">Issue Type <span class="required">*</span></label>
+              <div class="select-wrapper">
+                <select id="issue-type" name="issueType" required>
+                  <option value="" disabled selected>Select issue category...</option>
+                  <option value="Address Not Found">Address Not Found</option>
+                  <option value="Customer Not Available">Customer Not Available</option>
+                  <option value="Payment Issue">Payment Issue</option>
+                  <option value="Package Damaged">Package Damaged</option>
+                </select>
+                <span class="select-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+              </div>
+              <div class="error-msg" id="err-issue-type">Please select an issue type.</div>
+            </div>
+
+            <!-- Priority Radio Buttons -->
+            <div class="form-group">
+              <label>Priority Level <span class="required">*</span></label>
+              <div class="radio-group-container">
+                <label class="radio-label">
+                  <input type="radio" name="priority" value="Low" required>
+                  <span class="custom-radio"></span>
+                  <span class="radio-text">Low</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="priority" value="Medium">
+                  <span class="custom-radio"></span>
+                  <span class="radio-text">Medium</span>
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="priority" value="High">
+                  <span class="custom-radio"></span>
+                  <span class="radio-text text-danger">High</span>
+                </label>
+              </div>
+              <div class="error-msg" id="err-priority">Priority level is required.</div>
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group">
+              <label for="notes">Operational Notes</label>
+              <div class="textarea-wrapper">
+                <textarea id="notes" name="notes" rows="3" placeholder="Provide details regarding the delivery issue..."></textarea>
+                <span class="input-focus-border"></span>
+              </div>
+            </div>
+
+            <!-- Submit Button with Spinner -->
+            <button type="submit" id="btn-submit" class="btn-primary">
+              <span class="btn-text">Submit Exception</span>
+              <span class="spinner" id="submit-spinner"></span>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Right Column: Stats, Filters, List -->
+      <section class="main-content-section">
+        
+        <!-- Stats Cards Grid -->
+        <div class="stats-grid">
+          <!-- Total Issues -->
+          <div class="stats-card">
+            <div class="stats-icon-wrapper total-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stats-icon">
+                <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </div>
+            <div class="stats-info">
+              <span class="stats-label">Total Exceptions</span>
+              <span class="stats-val" id="stat-total">0</span>
+            </div>
+          </div>
+
+          <!-- Open Issues -->
+          <div class="stats-card">
+            <div class="stats-icon-wrapper open-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stats-icon">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <div class="stats-info">
+              <span class="stats-label">Open Issues</span>
+              <span class="stats-val" id="stat-open">0</span>
+            </div>
+          </div>
+
+          <!-- Resolved Issues -->
+          <div class="stats-card">
+            <div class="stats-icon-wrapper resolved-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stats-icon">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="stats-info">
+              <span class="stats-label">Resolved Issues</span>
+              <span class="stats-val" id="stat-resolved">0</span>
+            </div>
+          </div>
+
+          <!-- High Priority Issues -->
+          <div class="stats-card">
+            <div class="stats-icon-wrapper high-bg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stats-icon">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </div>
+            <div class="stats-info">
+              <span class="stats-label">High Priority</span>
+              <span class="stats-val" id="stat-high">0</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Filters & Search Controls Card -->
+        <div class="card controls-card">
+          <div class="controls-grid">
+            <!-- Search bar -->
+            <div class="search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="search-input" placeholder="Search by Delivery ID or Customer Name...">
+            </div>
+
+            <!-- Filter Issue Type -->
+            <div class="filter-group">
+              <label for="filter-issue">Issue Type</label>
+              <div class="select-wrapper select-small">
+                <select id="filter-issue">
+                  <option value="All">All Categories</option>
+                  <option value="Address Not Found">Address Not Found</option>
+                  <option value="Customer Not Available">Customer Not Available</option>
+                  <option value="Payment Issue">Payment Issue</option>
+                  <option value="Package Damaged">Package Damaged</option>
+                </select>
+                <span class="select-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+              </div>
+            </div>
+
+            <!-- Filter Status -->
+            <div class="filter-group">
+              <label for="filter-status">Status</label>
+              <div class="select-wrapper select-small">
+                <select id="filter-status">
+                  <option value="All">All Statuses</option>
+                  <option value="Open">Open</option>
+                  <option value="Resolved">Resolved</option>
+                </select>
+                <span class="select-arrow">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table & Empty State Card -->
+        <div class="card table-card">
+          <div class="table-container">
+            <table id="exceptions-table">
+              <thead>
+                <tr>
+                  <th>Delivery ID</th>
+                  <th>Customer Name</th>
+                  <th>Issue Type</th>
+                  <th class="sortable-header" id="sort-priority" title="Sort by Priority">
+                    Priority 
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </th>
+                  <th class="sortable-header" id="sort-status" title="Sort by Status">
+                    Status 
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sort-icon"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="table-body">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+
+            <!-- Empty State Element -->
+            <div id="empty-state" class="empty-state-container hidden">
+              <div class="empty-state-illustration">
+                <!-- Pure HTML/CSS Illustration -->
+                <div class="illustration-box">
+                  <div class="box-back"></div>
+                  <div class="box-front">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="box-check-icon">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </div>
+                  <div class="illustration-stars">
+                    <span class="star star-1">✦</span>
+                    <span class="star star-2">✦</span>
+                    <span class="star star-3">✦</span>
+                  </div>
+                </div>
+              </div>
+              <h3>No Delivery Exceptions Found</h3>
+              <p>Operational queues are clean. All current shipments are proceeding smoothly without unresolved issues.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Professional Footer -->
+    <footer class="main-footer">
+      <div class="footer-left">
+        <strong>GreyAtom Logistics Pvt. Ltd.</strong>
+        <span class="footer-dot">•</span>
+        <span>Internal Operations Dashboard</span>
+      </div>
+      <div class="footer-right">
+        <span class="version-badge">Version 1.0</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
