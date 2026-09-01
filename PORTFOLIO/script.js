@@ -1,100 +1,94 @@
-const navbar = document.querySelector("#navbar");
-const menuButton = navbar?.querySelector("button");
-const menu = navbar?.querySelector("#navbar-menu");
-const navigationLinks = navbar ? [...navbar.querySelectorAll("#navbar-menu a[href^='#']")] : [];
-const sections = [...document.querySelectorAll("main > section[id]")];
-const mobileQuery = window.matchMedia("(max-width: 760px)");
-const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const navToggle = document.querySelector('.nav-toggle');
+const nav = document.querySelector('.site-nav');
+const navLinks = [...document.querySelectorAll('.site-nav a')];
+const sections = [...document.querySelectorAll('main section[id]')];
+const revealEls = [...document.querySelectorAll('.reveal')];
+const contactForm = document.getElementById('contactForm');
+const formStatus = document.querySelector('.form-status');
 
-if (menuButton && menu) {
-	menuButton.setAttribute("aria-controls", "navbar-menu");
+if (navToggle && nav) {
+  navToggle.addEventListener('click', () => {
+    const isOpen = nav.classList.toggle('open');
+    navToggle.setAttribute('aria-expanded', String(isOpen));
+  });
 
-	const syncMenuState = () => {
-		const isMobile = mobileQuery.matches;
-		menu.hidden = isMobile;
-		menuButton.setAttribute("aria-expanded", String(!isMobile));
-		menuButton.setAttribute("aria-label", isMobile ? "Open navigation menu" : "Navigation menu");
-	};
-
-	const toggleMenu = () => {
-		const isOpen = menuButton.getAttribute("aria-expanded") === "true";
-		menu.hidden = isOpen;
-		menuButton.setAttribute("aria-expanded", String(!isOpen));
-		menuButton.setAttribute("aria-label", isOpen ? "Open navigation menu" : "Close navigation menu");
-	};
-
-	menuButton.addEventListener("click", toggleMenu);
-	mobileQuery.addEventListener("change", syncMenuState);
-	syncMenuState();
-
-	// Close the mobile menu after choosing a section.
-	navigationLinks.forEach((link) => {
-		link.addEventListener("click", () => {
-			if (mobileQuery.matches) {
-				menu.hidden = true;
-				menuButton.setAttribute("aria-expanded", "false");
-				menuButton.setAttribute("aria-label", "Open navigation menu");
-			}
-		});
-	});
-
-	document.addEventListener("keydown", (event) => {
-		if (event.key === "Escape" && mobileQuery.matches && !menu.hidden) {
-			menu.hidden = true;
-			menuButton.setAttribute("aria-expanded", "false");
-			menuButton.setAttribute("aria-label", "Open navigation menu");
-			menuButton.focus();
-		}
-	});
+  navLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      nav.classList.remove('open');
+      navToggle.setAttribute('aria-expanded', 'false');
+    });
+  });
 }
 
-const setActiveLink = (sectionId) => {
-	navigationLinks.forEach((link) => {
-		const isActive = link.getAttribute("href") === `#${sectionId}`;
-		link.toggleAttribute("aria-current", isActive);
-	});
-};
+function setActiveNav() {
+  const scrollPosition = window.scrollY + 140;
 
-// Reveal sections once as they enter the viewport, keeping them visible afterward.
-if ("IntersectionObserver" in window) {
-	const revealObserver = new IntersectionObserver((entries) => {
-		entries.forEach((entry) => {
-			if (!entry.isIntersecting) {
-				return;
-			}
+  let currentSection = sections[0]?.id;
 
-			const section = entry.target;
-			section.style.transition = reducedMotionQuery.matches ? "none" : "opacity 500ms ease, transform 500ms ease";
-			section.style.opacity = "1";
-			section.style.transform = "translateY(0)";
-			revealObserver.unobserve(section);
-		});
-	}, { threshold: [0, 0.25, 0.5, 0.75], rootMargin: "-15% 0px -55%" });
+  sections.forEach((section) => {
+    if (scrollPosition >= section.offsetTop) {
+      currentSection = section.id;
+    }
+  });
 
-	sections.forEach((section) => {
-		if (!reducedMotionQuery.matches) {
-			section.style.opacity = "0";
-			section.style.transform = "translateY(14px)";
-		}
-		revealObserver.observe(section);
-	});
-} else {
-	sections.forEach((section) => {
-		section.style.opacity = "1";
-		section.style.transform = "none";
-	});
+  navLinks.forEach((link) => {
+    const isActive = link.getAttribute('href') === `#${currentSection}`;
+    link.classList.toggle('active', isActive);
+  });
 }
 
-if ("IntersectionObserver" in window) {
-	const activeSectionObserver = new IntersectionObserver((entries) => {
-		entries.forEach((entry) => {
-			if (entry.isIntersecting) {
-				setActiveLink(entry.target.id);
-			}
-		});
-	}, { threshold: 0.55, rootMargin: "-10% 0px -35%" });
+const revealObserver = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.12 }
+);
 
-	sections.forEach((section) => activeSectionObserver.observe(section));
+revealEls.forEach((element) => revealObserver.observe(element));
+
+window.addEventListener('scroll', setActiveNav, { passive: true });
+window.addEventListener('load', setActiveNav);
+
+if (contactForm) {
+  const submitButton = contactForm.querySelector('button[type="submit"]');
+  const formEndpoint = 'https://formspree.io/f/xdeoavrk';
+
+  contactForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    if (!submitButton || !formStatus) {
+      return;
+    }
+
+    const formData = new FormData(contactForm);
+
+    submitButton.disabled = true;
+    formStatus.textContent = '';
+
+    try {
+      const response = await fetch(formEndpoint, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Accept: 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Submission failed');
+      }
+
+      formStatus.textContent = 'Thanks! Your message has been sent.';
+      contactForm.reset();
+    } catch (error) {
+      formStatus.textContent = 'Sorry, there was a problem sending your message. Please try again.';
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
 }
-
-setActiveLink("home");
